@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Felolvasási idő számoló</title>
+<style>
+:root{--bg:#faf7f2;--card:#fff;--text:#1f1b16;--muted:#6b6258;--accent:#c2410c;--line:#e7dfd3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130f;--card:#221d17;--text:#f3ede4;--muted:#a79d90;--accent:#fb923c;--line:#3a3128;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17130f;--card:#221d17;--text:#f3ede4;--muted:#a79d90;--accent:#fb923c;--line:#3a3128;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:1.6rem;margin:0 0 4px}
+p.sub{margin:0 0 20px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+label{display:block;font-weight:600;margin-bottom:6px}
+textarea{width:100%;min-height:160px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row button{flex:1;min-width:90px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;cursor:pointer}
+.row button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;text-align:center}
+.stats div{background:var(--bg);border-radius:10px;padding:10px}
+.stats b{display:block;font-size:1.4rem;color:var(--accent)}
+.stats span{font-size:.8rem;color:var(--muted)}
+input[type=number]{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
+.res{margin-top:12px;font-size:1.1rem}
+.res b{color:var(--accent)}
+small{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>Felolvasási idő számoló</h1>
+<p class="sub">Másold be a szöveget, és megmutatom, mennyi ideig tart hangosan felolvasni. Nem tárol semmit, regisztráció sincs.</p>
+
+<div class="card">
+<label for="t">Szöveg</label>
+<textarea id="t" placeholder="Írd vagy másold ide a szöveget…"></textarea>
+<div class="row" id="pace">
+<button data-w="110">Lassú<br><small>110 szó/perc</small></button>
+<button data-w="140" class="on">Normál<br><small>140 szó/perc</small></button>
+<button data-w="170">Gyors<br><small>170 szó/perc</small></button>
+</div>
+<div class="stats">
+<div><b id="w">0</b><span>szó</span></div>
+<div><b id="c">0</b><span>karakter</span></div>
+<div><b id="time">0 mp</b><span>felolvasási idő</span></div>
+</div>
+</div>
+
+<div class="card">
+<label for="m">Fordítva: hány szó fér bele?</label>
+<input id="m" type="number" min="0" step="0.5" placeholder="Hány percet kaptál?">
+<div class="res" id="r">Add meg az időt percben.</div>
+</div>
+</main>
+<script>
+var wpm=140,t=document.getElementById('t'),m=document.getElementById('m');
+function fmt(s){s=Math.round(s);var mi=Math.floor(s/60),se=s%60;return mi>0?mi+' p '+se+' mp':se+' mp'}
+function calc(){
+var txt=t.value.trim(),words=txt?txt.split(/\s+/).length:0;
+document.getElementById('w').textContent=words;
+document.getElementById('c').textContent=t.value.length;
+document.getElementById('time').textContent=fmt(words/wpm*60);
+var v=parseFloat(m.value.replace(',','.')),r=document.getElementById('r');
+r.innerHTML=(isNaN(v)||v<=0)?'Add meg az időt percben.':'Kb. <b>'+Math.round(v*wpm)+' szó</b> fér bele '+wpm+' szó/perc tempónál.';
+}
+document.querySelectorAll('#pace button').forEach(function(b){
+b.addEventListener('click',function(){
+document.querySelectorAll('#pace button').forEach(function(x){x.classList.remove('on')});
+b.classList.add('on');wpm=+b.dataset.w;calc();
+});
+});
+t.addEventListener('input',calc);m.addEventListener('input',calc);calc();
+</script>
+</body>
+</html>
